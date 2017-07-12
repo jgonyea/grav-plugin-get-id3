@@ -1,10 +1,9 @@
 <?php
 namespace Grav\Plugin;
 
-
 use Grav\Common\Plugin;
 use Grav\Common\Grav;
-use getID3;
+use RocketTheme\Toolbox\File\File;
 
 /**
  * Class GetID3Plugin
@@ -22,85 +21,108 @@ class GetID3Plugin extends Plugin
    *   callable (or function) as well as the priority. The
    *   higher the number the higher the priority.
    */
-  public static function getSubscribedEvents()
-  {
-    return [
-      'onPluginsInitialized' => ['onPluginsInitialized', 0]
-    ];
-  }
+    public static function getSubscribedEvents()
+    {
+        return [
+        'onPluginsInitialized' => ['onPluginsInitialized', 0]
+        ];
+    }
 
   /**
    * Initialize the plugin
    */
-  public function onPluginsInitialized()
-  {
-    // Don't proceed if we are in the admin plugin
-    if ($this->isAdmin()) {
-      $this->findGetID3();
-    return;
-  }
+    public function onPluginsInitialized()
+    {
+        if ($this->findGetID3()) {
+            // Don't proceed if we are in the admin plugin
+            if ($this->isAdmin()) {
+                return;
+            }
 
-  // Enable the main event we are interested in
-  $this->enable([
-   
-  ]);
-  }
+          // Enable the main event we are interested in
+            $this->enable([
+
+            ]);
+        }
+    }
 
   /**
    * Ensure that the getID3 library can be found.
-   * 
+   *
    */
-  public function findGetID3() {
-    $grav = new Grav();
+    public function findGetID3()
+    {
+        $grav = new Grav();
     
-    $library_files = array(
-      'getid3.lib.php',
-      'getid3.php',
-      'module.audio.mp3.php',
-      'module.tag.id3v1.php',
-      'module.tag.id3v2.php',
-    );
+        $required_library_files = array(
+            'getid3.lib.php',
+            'getid3.php',
+            'module.audio.mp3.php',
+            'module.tag.id3v1.php',
+            'module.tag.id3v2.php',
+            'module.tag.apetag.php',
+        );
 
-    foreach ($library_files as $file){
-      $path = __DIR__ . DIRECTORY_SEPARATOR . 'library' . DIRECTORY_SEPARATOR . $file;
-      if(!file_exists($path)){
-        dump($path );
-        $grav::instance()['log']->error("$file from getid3 library not found. Please download it from http://www.getid3.org/");
-        return FALSE;
-      }
+        foreach ($required_library_files as $file) {
+            $path = __DIR__ . DS . 'library' . DS . $file;
+            if (!file_exists($path)) {
+                $message = "Files are missing from the getid3 library. Please download it from http://www.getid3.org/ and follow the installation instructions in the README.md file for this plugin.";
+                $grav::instance()['log']->error($message);
+                $grav_messages = $this->grav['messages'];
+                $grav_messages->add($message, 'error');
+                // Disable the plugin if the library cannot be loaded.
+                $this->disablePlugin();
+                return false;
+            }
+        }
+
+        return true;
     }
-
-    return TRUE;  
-  }
   
   /**
    * Create and initialize an instance of getID3 class.
-   * 
+   *
    * @return getID3
    */
-  public function getid3_instance() {
-    if (findGetID3()) {
-      $id3 = new getID3();
-      // MD5 is a big performance hit. Disable it by default.
-      $id3->option_md5_data = FALSE;
-      $id3->option_md5_data_source = FALSE;
-      $id3->encoding = 'UTF-8';
-  }
-  return $id3;
-  }
+    public static function getID3Instance()
+    {
+        include_once(__DIR__ . DS . "library" . DS . "getid3.php");
+        $id3 = new \getID3();
+        // MD5 is a big performance hit. Disable it by default.
+        $id3->option_md5_data = false;
+        $id3->option_md5_data_source = false;
+        $id3->encoding = 'UTF-8';
+        return $id3;
+    }
   
   
   /**
    * Takes a file entity and returns ID3 data.
    * @param type $file
    */
-  public function analyzeFile($file){
-    $getID3 = $this->getid3_instance();
-    dump($file);
-    $file_path = $file;
-    if(file_exists($file_path)){
-      return $getID3->analyze($file_path);
+    public static function analyzeFile($file)
+    {
+        $getID3 = GetID3Plugin::getID3Instance();
+        return $getID3->analyze($file);
     }
-    return NULL;
-  }
+  
+  /**
+   * Disables the plugin.
+   */
+    public function disablePlugin()
+    {
+        $grav = new Grav();
+        $config_file_path = USER_DIR . 'config' . DS . 'plugins' . DS . 'get-id3.yaml';
+        $file = File::instance($config_file_path);
+        if ($file->writable()) {
+            if($file->exists()){
+                $file->delete();
+            }
+            $file->save("enabled: false");
+            $message = "Successfully disabled GetID3Plugin.";
+            $grav::instance()['log']->info($message);
+            $grav_messages = $this->grav['messages'];
+            $grav_messages->add($message, 'info');
+        }
+    }
 }
