@@ -1,0 +1,26 @@
+name: GetId3
+version: 1.0.0
+description: It integrates the getID3 library into Grav CMS.
+icon: file-audio-o
+author:
+  name: Jeremy Gonyea
+  email: jeremy.gonyea@gmail.com
+homepage: https://github.com/jgonyea/grav-plugin-get-id3
+keywords: grav, plugin, getid3, audio, metadata
+bugs: https://github.com/jgonyea/grav-plugin-get-id3/issues
+docs: https://github.com/jgonyea/grav-plugin-get-id3/blob/develop/README.md
+license: MIT
+
+form:
+  validation: strict
+  fields:
+    enabled:
+      type: toggle
+      label: Plugin status
+      highlight: 1
+      default: 0
+      options:
+        1: Enabled
+        0: Disabled
+      validate:
+        type: bool
