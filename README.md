@@ -25,7 +25,9 @@ You should now have all the plugin files under
 > NOTE: This plugin is a modular component for Grav which requires [Grav](http://github.com/getgrav/grav) and the [Error](https://github.com/getgrav/grav-plugin-error) and [Problems](https://github.com/getgrav/grav-plugin-problems) to operate.
 
 ## Post Installation
-After installing the plugin, you **must** download the getID3 PHP library from its [homepage](http://www.getid3.org/).  Extract the files and copy the contents of getid3 subfolder to this plugin's library folder.  The structure should look something like this:
+After enabling the plugin, the getID3 library attempts to install itself automatically.  In the event of an error, you will need to install it manually from its [homepage](http://www.getid3.org/).  
+
+Extract the files and copy the contents of getid3 subfolder to this plugin's library folder.  The structure should look something like this:
 
 ```
 | user
@@ -40,7 +42,7 @@ After installing the plugin, you **must** download the getID3 PHP library from i
         |--  getid3.php
         |--  ...
 ```
-The php files with names "write.*.php" are not needed for this plugin.
+The php files with names "write.*.php" are not needed for this plugin, but there's no harm in including them.
 
 ## Configuration
 
@@ -52,7 +54,7 @@ enabled: true
 
 ## Usage
 
-This plugin provides no visual functionality.  It integrates the getid3 PHP library into GravCMS for other plugins (i.e. the Podcast plugin) to use.
+This plugin provides no visual functionality.  It integrates the getID3 PHP library into GravCMS for other plugins (i.e. the Podcast plugin) to use.
 
 File metadata can be retrieved by code similar to:
 
@@ -66,6 +68,10 @@ where $file is a path to a media file.
 
 - Initially inspired by the Drupal module [getid3](https://www.drupal.org/project/getid3/)
 - Ole Vik, who was patient with my Slack questions.
+- James Heinrich, for his php library.
+
+## Licensing Notes
+This plugin is licensed under the MIT license.  The php library getID3 is licensed under various licenses, as seen here https://github.com/JamesHeinrich/getID3.
 
 ## To Do
 
