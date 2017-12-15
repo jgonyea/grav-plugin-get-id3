@@ -1,3 +1,11 @@
+# v1.0.2
+## 12/14/2017
+
+1. [](#new)
+2. [](#improved)
+3. [](#bugfix)
+    * Fixed automated install if `/tmp` and `__DIR__` were on different drives
+
 # v1.0.1
 ## 11/01/2017
 

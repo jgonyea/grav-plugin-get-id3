@@ -1,5 +1,5 @@
 name: GetId3
-version: 1.0.1
+version: 1.0.2
 description: Integrates the getID3 PHP library into Grav CMS.
 icon: file-audio-o
 author:
