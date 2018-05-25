@@ -104,7 +104,8 @@ class GetID3Plugin extends Plugin
             $grav::instance()['log']->info($message);
             $grav_messages = $this->grav['messages'];
             $grav_messages->add($message, $level);
-            $grav_messages->add("Files are missing from the getID3 library. Please download it manually from http://www.getid3.org/ and follow the installation instructions in the README.md file for this plugin.", 'error');
+            $grav_messages->add("Files are missing from the getID3 library. Please see the grav log files for more information", 'error');
+            $grav_messages->add("Please manually download the library from http://www.getid3.org/ and follow the installation instructions in the README.md file for this plugin.", 'error');
         }
         $grav_messages->add('Disabled GetId3 Plugin', 'info');
     }
@@ -114,6 +115,7 @@ class GetID3Plugin extends Plugin
      */
     public function downloadGetID3()
     {
+        // Locate library file online.
         try {
             $url = "https://github.com/JamesHeinrich/getID3/archive/v1.9.15.zip";
             $library_dir = __DIR__ . '/library/';
@@ -132,10 +134,16 @@ class GetID3Plugin extends Plugin
                 $this->disablePlugin($message, 'error');
                 return false;
             }
+        } catch (\Exception $e) {
+            $message = "Couldn't locate the getID3.zip file at " . $url;
+            $this->disablePlugin($message, 'error');
+            return false;
+        }
 
-            // Download zip file to library temp location.
+        // Download zip file to library temp location.
+        try {
             if ($remote_file = fopen($url, 'rb')) {
-                $local_file = tempnam(__DIR__ . '/tmp', 'getid3');
+                $local_file = @tempnam(__DIR__ . '/tmp', 'getid3');
                 $handle = fopen($local_file, "w");
                 $contents = stream_get_contents($remote_file);
 
@@ -143,15 +151,27 @@ class GetID3Plugin extends Plugin
                 fclose($remote_file);
                 fclose($handle);
             }
+        } catch (\Exception $e) {
+            $message = "Failed to download file";
+            $this->disablePlugin($message, 'error');
+            return false;
+        }
 
-            // Unzip archive.
+        // Unzip archive.
+        try {
             $zip_obj = new \ZipArchive();
             if ($zip_obj->open($local_file) == true) {
                 $zip_obj->extractTo(__DIR__ . '/tmp/extracted');
                 $zip_obj->close();
             }
+        } catch (\Exception $e) {
+            $message = "Failed to extract library to " . __DIR__ . "/tmp/extracted";
+            $this->disablePlugin($message, 'error');
+            return false;
+        }
 
-            // Move archive to library.
+        // Move archive to library.
+        try {
             rename($library_dir . ".gitkeep", __DIR__ . ".gitkeep");
             rmdir($library_dir);
 
@@ -162,7 +182,9 @@ class GetID3Plugin extends Plugin
             rename(__DIR__ . ".gitkeep", $library_dir . ".gitkeep");
             return true;
         } catch (\Exception $e) {
-            $this->disablePlugin("Error attempting to download the getID3 library.", "error");
+            $message = "Unable to move the library files to " . $library_dir;
+            $this->disablePlugin($message, 'error');
+            return false;
         }
     }
 }

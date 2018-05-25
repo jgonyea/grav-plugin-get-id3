@@ -1,3 +1,11 @@
+# v1.0.3
+## 05/25/2018
+
+1. [](#new)
+2. [](#improved)
+    * Better logging if getID3 library fails to download/ install properly.
+3. [](#bugfix)
+
 # v1.0.2
 ## 12/14/2017
 
