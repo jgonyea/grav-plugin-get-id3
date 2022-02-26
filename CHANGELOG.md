@@ -1,3 +1,11 @@
+# v1.0.4
+## 02/26/2022
+
+1. [](#new)
+2. [](#improved)
+    * Upgraded getID3 library to support PHP 8.x
+3. [](#bugfix)
+
 # v1.0.3
 ## 05/25/2018
 

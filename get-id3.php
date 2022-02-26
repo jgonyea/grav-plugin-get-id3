@@ -117,7 +117,7 @@ class GetID3Plugin extends Plugin
     {
         // Locate library file online.
         try {
-            $url = "https://github.com/JamesHeinrich/getID3/archive/v1.9.15.zip";
+            $url = "https://github.com/JamesHeinrich/getID3/archive/refs/tags/v1.9.21.zip";
             $library_dir = __DIR__ . '/library/';
 
             // Make sure the url is reachable.
@@ -177,7 +177,7 @@ class GetID3Plugin extends Plugin
 
             // Wait for file system to become ready before copying files.
             sleep(3);
-            rename(__DIR__ . '/tmp/extracted/getID3-1.9.15/getid3', $library_dir);
+            rename(__DIR__ . '/tmp/extracted/getID3-1.9.21/getid3', $library_dir);
             unlink($local_file);
             rename(__DIR__ . ".gitkeep", $library_dir . ".gitkeep");
             return true;
