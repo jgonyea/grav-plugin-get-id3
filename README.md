@@ -30,17 +30,20 @@ After enabling the plugin, the getID3 library attempts to install itself automat
 Extract the files and copy the contents of getid3 subfolder to this plugin's library folder.  The structure should look something like this:
 
 ```
-| user
-  |--  plugins
-    |--  get-id3
-      |--  library
-        |--  extension.cache.dbm.php
-        |--  extension.cache.mysql.php
-        |--  extension.cache.mysqli.php
-        |--  extension.cache.sqlite3.php
-        |--  getid3.lib.php
-        |--  getid3.php
-        |--  ...
+get-id3
+├── blueprints.yaml
+├── CHANGELOG.md
+├── get-id3.php
+├── get-id3.yaml
+├── library
+│   ├── extension.cache.dbm.php
+│   ├── extension.cache.mysqli.php
+│   ├── extension.cache.mysql.php
+│   ├── extension.cache.sqlite3.php
+│   ├── getid3.lib.php
+|   .
+|   .
+|   .
 ```
 The php files with names "write.*.php" are not needed for this plugin, but there's no harm in including them.
 
@@ -54,7 +57,7 @@ enabled: true
 
 ## Usage
 
-This plugin provides no visual functionality.  It integrates the getID3 PHP library into GravCMS for other plugins (i.e. the Podcast plugin) to use.
+This plugin provides no visual functionality.  It integrates the getID3 PHP library into GravCMS for other plugins (i.e. the [Podcast](https://github.com/jgonyea/grav-plugin-podcast) plugin) to use.
 
 File metadata can be retrieved by code similar to:
 
@@ -62,7 +65,7 @@ File metadata can be retrieved by code similar to:
 $meta = GetID3Plugin::analyzeFile($file)
 ```
 
-where $file is a path to a media file.
+where `$file` is a path to a media file.
 
 ## Credits
 
@@ -71,7 +74,7 @@ where $file is a path to a media file.
 - James Heinrich, for his php library.
 
 ## Licensing Notes
-This plugin is licensed under the MIT license.  The php library getID3 is licensed under various licenses, as seen here https://github.com/JamesHeinrich/getID3.
+This plugin is licensed under the MIT license.  The php library getID3 is licensed under various other licenses, as seen here https://github.com/JamesHeinrich/getID3.
 
 ## To Do
 

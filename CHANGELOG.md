@@ -1,3 +1,14 @@
+# v1.0.5
+## 03/19/2022
+
+1. [](#new)
+2. [](#improved)
+    * Lots of improvements with how file paths are called.
+    * Grav's tmp folder is now used to download instead of a folder within the plugin.
+    * Better handling of missing library folder.
+3. [](#bugfix)
+
+
 # v1.0.4
 ## 02/26/2022
 

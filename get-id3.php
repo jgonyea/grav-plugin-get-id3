@@ -1,8 +1,9 @@
 <?php
 namespace Grav\Plugin;
 
-use Grav\Common\Plugin;
+use Grav\Common\Cache;
 use Grav\Common\Grav;
+use Grav\Common\Plugin;
 use RocketTheme\Toolbox\File\File;
 
 /**
@@ -41,7 +42,7 @@ class GetID3Plugin extends Plugin
     /**
      * Ensure that the getID3 library can be found.
      */
-    public function verifyGetID3()
+    public function verifyGetID3(): bool
     {
         $required_library_files = array(
             'getid3.lib.php',
@@ -51,14 +52,13 @@ class GetID3Plugin extends Plugin
             'module.tag.id3v2.php',
             'module.tag.apetag.php',
         );
-
-        foreach ($required_library_files as $file) {
-            $path = __DIR__ . '/library/' . $file;
+        $locator = Grav::instance()['locator'];
+        foreach ($required_library_files as $filename) {
+            $path = $locator->findResource('plugin://' . $this->name . '/library//' . $filename);
             if (!file_exists($path)) {
                 return false;
             }
         }
-
         return true;
     }
 
@@ -69,7 +69,8 @@ class GetID3Plugin extends Plugin
      */
     public static function getID3Instance()
     {
-        include_once(__DIR__ . "/library/getid3.php");
+        $locator = Grav::instance()['locator'];
+        include_once($locator->findResource('plugin://get-id3/library/getid3.php'));
         $id3 = new \getID3();
         // MD5 is a big performance hit. Disable it by default.
         $id3->option_md5_data = false;
@@ -93,15 +94,14 @@ class GetID3Plugin extends Plugin
      */
     public function disablePlugin($message, $level = 'info')
     {
-        $grav = new Grav();
-        $config_file_path = USER_DIR . 'config/plugins/get-id3.yaml';
+        $config_file_path = $this->grav['locator']->findResource('config://plugins/get-id3.yaml');
         $file = File::instance($config_file_path);
         if ($file->writable()) {
             if ($file->exists()) {
                 $file->delete();
             }
             $file->save("enabled: false");
-            $grav::instance()['log']->info($message);
+            $this->grav['log']->info($message);
             $grav_messages = $this->grav['messages'];
             $grav_messages->add($message, $level);
             $grav_messages->add("Files are missing from the getID3 library. Please see the grav log files for more information", 'error');
@@ -118,7 +118,10 @@ class GetID3Plugin extends Plugin
         // Locate library file online.
         try {
             $url = "https://github.com/JamesHeinrich/getID3/archive/refs/tags/v1.9.21.zip";
-            $library_dir = __DIR__ . '/library/';
+            $library_dir = $this->grav['locator']->findResource('plugin://' . $this->name) . "/library";
+            if (!file_exists($library_dir)) {
+                mkdir($this->grav['locator']->findResource('plugin://' . $this->name) . '/library//', 0755, true);
+            }
 
             // Make sure the url is reachable.
             $ch = curl_init($url);
@@ -143,7 +146,9 @@ class GetID3Plugin extends Plugin
         // Download zip file to library temp location.
         try {
             if ($remote_file = fopen($url, 'rb')) {
-                $local_file = @tempnam(__DIR__ . '/tmp', 'getid3');
+                $tmp_dir = $this->grav['locator']->findResource('tmp://', true, true);
+                $local_file = tempnam($tmp_dir, 'getid3');
+
                 $handle = fopen($local_file, "w");
                 $contents = stream_get_contents($remote_file);
 
@@ -161,25 +166,25 @@ class GetID3Plugin extends Plugin
         try {
             $zip_obj = new \ZipArchive();
             if ($zip_obj->open($local_file) == true) {
-                $zip_obj->extractTo(__DIR__ . '/tmp/extracted');
+                $zip_obj->extractTo($tmp_dir . '/getid3-extracted');
                 $zip_obj->close();
             }
         } catch (\Exception $e) {
-            $message = "Failed to extract library to " . __DIR__ . "/tmp/extracted";
+            $message = "Failed to extract library to " . $tmp_dir . "/getid3-extracted";
             $this->disablePlugin($message, 'error');
             return false;
         }
 
         // Move archive to library.
         try {
-            rename($library_dir . ".gitkeep", __DIR__ . ".gitkeep");
-            rmdir($library_dir);
+            // Remove existing library.
+            if (file_exists($library_dir)) {
+                rename($library_dir, $tmp_dir . "/old-getid3-library");
+            }
 
-            // Wait for file system to become ready before copying files.
-            sleep(3);
-            rename(__DIR__ . '/tmp/extracted/getID3-1.9.21/getid3', $library_dir);
-            unlink($local_file);
-            rename(__DIR__ . ".gitkeep", $library_dir . ".gitkeep");
+            rename($tmp_dir . '/getid3-extracted/getID3-1.9.21/getid3', $library_dir);
+            touch($library_dir . "/.gitkeep");
+            Cache::clearCache("tmp-only");
             return true;
         } catch (\Exception $e) {
             $message = "Unable to move the library files to " . $library_dir;
