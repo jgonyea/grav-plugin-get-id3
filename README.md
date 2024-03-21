@@ -78,4 +78,4 @@ This plugin is licensed under the MIT license.  The php library getID3 is licens
 
 ## To Do
 
-- None, currently.
+- Find a way to upgrade existing get-id3 library files when this package updates.

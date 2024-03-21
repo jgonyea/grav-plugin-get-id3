@@ -1,3 +1,11 @@
+# v1.0.6
+## 03/12/2024
+
+1. [](#new)
+2. [](#improved)
+    * Bumped get-id3 library to 1.9.23.
+3. [](#bugfix)
+
 # v1.0.5
 ## 03/19/2022
 

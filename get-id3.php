@@ -12,16 +12,19 @@ use RocketTheme\Toolbox\File\File;
  */
 class GetID3Plugin extends Plugin
 {
-  /**
-   * @return array
-   *
-   * The getSubscribedEvents() gives the core a list of events
-   *   that the plugin wants to listen to. The key of each
-   *   array section is the event that the plugin listens to
-   *   and the value (in the form of an array) contains the
-   *   callable (or function) as well as the priority. The
-   *   higher the number the higher the priority.
-   */
+
+    private $getID3_ver = "1.9.23";
+
+    /**
+     * @return array
+     *
+     * The getSubscribedEvents() gives the core a list of events
+     *   that the plugin wants to listen to. The key of each
+     *   array section is the event that the plugin listens to
+     *   and the value (in the form of an array) contains the
+     *   callable (or function) as well as the priority. The
+     *   higher the number the higher the priority.
+     */
     public static function getSubscribedEvents()
     {
         return [
@@ -117,7 +120,7 @@ class GetID3Plugin extends Plugin
     {
         // Locate library file online.
         try {
-            $url = "https://github.com/JamesHeinrich/getID3/archive/refs/tags/v1.9.21.zip";
+            $url = "https://github.com/JamesHeinrich/getID3/archive/refs/tags/v" . $this->getID3_ver .  ".zip";
             $library_dir = $this->grav['locator']->findResource('plugin://' . $this->name) . "/library";
             if (!file_exists($library_dir)) {
                 mkdir($this->grav['locator']->findResource('plugin://' . $this->name) . '/library//', 0755, true);
@@ -182,7 +185,7 @@ class GetID3Plugin extends Plugin
                 rename($library_dir, $tmp_dir . "/old-getid3-library");
             }
 
-            rename($tmp_dir . '/getid3-extracted/getID3-1.9.21/getid3', $library_dir);
+            rename($tmp_dir . '/getid3-extracted/getID3-' . $this->getID3_ver . '/getid3', $library_dir);
             touch($library_dir . "/.gitkeep");
             Cache::clearCache("tmp-only");
             return true;
