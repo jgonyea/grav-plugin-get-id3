@@ -1,3 +1,11 @@
+# v1.0.7
+## 04/12/26
+
+1. [](#new)
+2. [](#improved)
+3. [](#bugfix)
+    * Fixed logic bug where logging may fail if filesystem isn't writable.
+
 # v1.0.6
 ## 03/12/2024
 

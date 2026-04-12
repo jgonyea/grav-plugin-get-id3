@@ -97,6 +97,9 @@ class GetID3Plugin extends Plugin
      */
     public function disablePlugin($message, $level = 'info')
     {
+        $this->grav['log']->info($message);
+        $grav_messages = $this->grav['messages'];
+
         $config_file_path = $this->grav['locator']->findResource('config://plugins/get-id3.yaml');
         $file = File::instance($config_file_path);
         if ($file->writable()) {
@@ -104,8 +107,6 @@ class GetID3Plugin extends Plugin
                 $file->delete();
             }
             $file->save("enabled: false");
-            $this->grav['log']->info($message);
-            $grav_messages = $this->grav['messages'];
             $grav_messages->add($message, $level);
             $grav_messages->add("Files are missing from the getID3 library. Please see the grav log files for more information", 'error');
             $grav_messages->add("Please manually download the library from http://www.getid3.org/ and follow the installation instructions in the README.md file for this plugin.", 'error');
